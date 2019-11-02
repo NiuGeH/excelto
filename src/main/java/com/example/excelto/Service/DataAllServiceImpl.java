@@ -6,6 +6,7 @@ import com.example.excelto.Repostory.DataAllRepository;
 import com.example.excelto.Repostory.DataTabRepository;
 import com.google.gson.Gson;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.formula.Formula;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.alibaba.druid.support.monitor.annotation.AggregateType.Last;
 
 @Service
 @Transactional(rollbackOn = Exception.class)
@@ -71,7 +74,16 @@ public class DataAllServiceImpl implements DataAllService {
                     ArrayList<String> list = new ArrayList<String>();
                     for (Cell cell : row) {
                         //根据不同类型转化成字符串
-                        list.add(cell.toString());
+                        if(cell.getCellType()== CellType.FORMULA){
+                            if(cell.getCachedFormulaResultType() == CellType.NUMERIC){
+                                list.add(String.valueOf(cell.getNumericCellValue()));
+                            }else{
+
+                            }
+                        }else {
+                            list.add(cell.toString());
+
+                        }
                     }
                     lists.add(list);
 
