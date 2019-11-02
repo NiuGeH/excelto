@@ -13,6 +13,7 @@ import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
@@ -45,14 +46,20 @@ public class DataAllController {
      */
     @RequestMapping("/uploadCardImageExamination")
     @ResponseBody
-    public AjaxResult uploadExaminationReport(String monthDataOn, final HttpServletRequest request) {
+    public AjaxResult uploadExaminationReport(String monthDataOn, final HttpServletRequest request,String flage) {
         return AjaxUtils.process(new Func_T<Object>() {
             @Override
             public Object invoke() throws Exception {
-                System.err.println(monthDataOn);
+
                 List<DataTabEntity> allByDateTime = dataTabRepository.findAllByDateTime(monthDataOn);
                 if(allByDateTime.size() > 0 ){
-                    return "dohave";
+                    if(!(StringUtils.isEmpty(flage)) && flage.equals("1")){
+                        DataTabEntity dataTabEntity = allByDateTime.get(0);
+                        dataAllRepository.deleteAllByDataTabEntity(dataTabEntity);
+                        dataTabRepository.delete(dataTabEntity);
+                    }else {
+                        return "dohave";
+                    }
                 }
                 String fileName = null;
                 String nowDay = new SimpleDateFormat("yyyyMMdd").format(new Date());
